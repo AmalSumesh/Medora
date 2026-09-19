@@ -1,0 +1,44 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from triage_facade import TriageFacade
+
+app = FastAPI(
+    title="HealthTriage API",
+    description="API for HealthTriage RAG system",
+    version='1.0.0'
+)
+
+facade = TriageFacade()
+
+class TriageRequest(BaseModel):
+    session_id: str
+    message: str
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "HealthTriage AI Service is running"
+    }
+
+@app.post("/session")
+def create_session():
+    session_id = facade.create_session()
+
+    return {
+        "session_id": session_id
+    }
+
+
+
+    
+@app.post("/triage")
+def triage(request: TriageRequest):
+
+    result = facade.chat(
+        session_id=request.session_id,
+        user_message=request.message
+    )
+
+    return result
