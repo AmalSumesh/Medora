@@ -1,13 +1,35 @@
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 import type {Request, Response} from "express";
+import "dotenv/config";
 
 export const createConversation  = async(req : Request, res: Response)=>{
     try{
         const {title} = req.body;
+        const python_api_url = process.env.PYTHON_API_URL;
+        if(!python_api_url) throw new Error("PYTHON_API_URL is not defined.");
+
+        const pythonResponse = await fetch(`${python_api_url}/session`,
+            {
+                method : "POST",
+                headers : {
+                    "Content-Type" : "application/json"
+                }
+            }
+        );
+
+        if (!pythonResponse.ok) {
+            throw new Error("Failed to create AI session");
+        }
+
+        const pythonData = await pythonResponse.json();
+        
+        const aiSessionId = pythonData.session_id;
+        
         const conversation = await Conversation.create({
             userId: req.user!.id,
-            title
+            title,
+            aiSessionId
         });
 
         res.status(201).json({
@@ -64,7 +86,7 @@ export const getConversation = async(req: Request, res: Response)=>{
         }
 
         const messages = await Message.find({
-            connversationId : conversation._id
+            conversationId : conversation._id
         }).sort({
             createdAt: 1
         });
@@ -100,7 +122,7 @@ export const deleteConversation = async (req : Request, res : Response)=>{
         }
 
         await Message.deleteMany({
-            connversationId : conversation._id,
+            conversationId : conversation._id,
         });
 
         res.status(200).json({
@@ -134,13 +156,44 @@ export const sendMessage = async (req : Request, res : Response)=>{
         }
 
         const message = await Message.create({
-            connversationId : conversation._id,
+            conversationId : conversation._id,
             role : "user",
             content
         });
 
+        const python_api_url = process.env.PYTHON_API_URL;
+        if(!python_api_url) throw new Error("PYTHON_API_URL is not defined.");
+
+        const pythonResponse = await fetch(`${python_api_url}/triage`,
+            {
+                method : "POST",
+                headers : {
+                    "Content-Type" : "application/json"
+                },
+                body : JSON.stringify({
+                    session_id : conversation.aiSessionId,
+                    message : content
+                })
+            }
+        );
+
+        if(!pythonResponse.ok){
+            throw new Error("FAILED TO SEND MESSAGE");
+        }
+
+        const pythonData = await pythonResponse.json();
+
+        const assistantResponse = pythonData.next_question ?? pythonData.recommendation;
+
+        const response = await Message.create({
+            conversationId : conversation._id,
+            role : "assistant",
+            content : assistantResponse
+        });
+
         res.status(201).json({
-            message
+            message,
+            response
         });
 
     }

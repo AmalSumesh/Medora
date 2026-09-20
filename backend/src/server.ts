@@ -5,6 +5,7 @@ import cors from "cors";
 
 import {connectToDb} from "./config/database.js";
 import {router as authRoutes} from "./routes/authRoutes.js";
+import {router as conversationRotes} from "./routes/conversationRoutes.js";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.get("/", (req, res)=>{
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/conversations", conversationRotes);
 
 const PORT = process.env.PORT;
 if(!PORT) process.exit(1);

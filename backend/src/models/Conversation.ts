@@ -10,7 +10,13 @@ const conversationSchema = new mongoose.Schema({
     title : {
         type : String,
         required : [true, "Please add a title"]
+    },
+
+    aiSessionId: {
+        type: String,
+        required: [true, "Please add an aiSessionId"]
     }
+    
 },{timestamps : true});
 
 export default mongoose.model("Conversation", conversationSchema);
