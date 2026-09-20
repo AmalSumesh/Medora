@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import "dotenv/config";
 import type { Request, Response, NextFunction } from "express";
 
@@ -28,7 +28,9 @@ export const authMiddleware = (
         if(!jwtsecret) throw new Error("JWT_SECRET is not defined.")
        
         const decoded = jwt.verify(token, jwtsecret );
-        req.user = decoded;
+        req.user = decoded as JwtPayload & {
+            id :string
+        };
         next()
     }
     catch(error){
