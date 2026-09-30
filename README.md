@@ -8,7 +8,7 @@ Medora is an AI-powered health triage application designed to help users underst
 
 Instead of forcing users through a fixed questionnaire, Medora progressively asks relevant questions based on the information already provided. The system continuously reassesses the case and provides a structured triage recommendation when enough information has been collected.
 
-Medora is designed for **health triage support, not medical diagnosis**.
+Medora is designed for **health triage support only, not medical diagnosis**.
 
 ---
 
