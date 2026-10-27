@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { useAuth } from './hooks/useAuth';
-import { Navbar } from './components/Navbar';
+import { Navbar, type AppView } from './components/Navbar';
+import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Chat } from './pages/Chat';
-
-type AppView = 'login' | 'register' | 'chat';
 
 function MainApp() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -15,8 +14,9 @@ function MainApp() {
   const [requestedView, setRequestedView] = useState<AppView>(() => {
     const path = window.location.pathname.toLowerCase();
     if (path === '/register') return 'register';
+    if (path === '/login') return 'login';
     if (path === '/chat') return 'chat';
-    return 'login';
+    return 'landing';
   });
 
   // Sync browser back/forward navigation
@@ -25,10 +25,12 @@ function MainApp() {
       const path = window.location.pathname.toLowerCase();
       if (path === '/register') {
         setRequestedView('register');
+      } else if (path === '/login') {
+        setRequestedView('login');
       } else if (path === '/chat') {
         setRequestedView('chat');
       } else {
-        setRequestedView('login');
+        setRequestedView('landing');
       }
     };
 
@@ -38,11 +40,11 @@ function MainApp() {
 
   const navigateTo = (view: AppView) => {
     setRequestedView(view);
-    const targetPath = view === 'login' ? '/' : `/${view}`;
+    const targetPath = view === 'landing' ? '/' : `/${view}`;
     window.history.pushState(null, '', targetPath);
   };
 
-  // Derive active view: if user wants chat but is unauthenticated, show login; if user is authenticated and on login/register, show chat
+  // Derive active view
   const activeView: AppView = !isAuthenticated
     ? requestedView === 'chat'
       ? 'login'
@@ -52,7 +54,11 @@ function MainApp() {
       : requestedView;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-teal-100 selection:text-teal-900 dark:selection:bg-teal-900/60 dark:selection:text-teal-200 transition-colors">
+    <div
+      className={`${
+        activeView === 'landing' ? 'h-screen overflow-hidden' : 'min-h-screen'
+      } bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-emerald-500/20 selection:text-emerald-300 transition-colors`}
+    >
       {/* Navigation Header */}
       <Navbar
         currentView={activeView}
@@ -60,13 +66,19 @@ function MainApp() {
         isAuthenticated={isAuthenticated}
         onLogout={() => {
           logout();
-          navigateTo('login');
+          navigateTo('landing');
         }}
         userName={user?.name}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col">
+        {activeView === 'landing' && (
+          <Landing
+            onGetStarted={() => navigateTo(isAuthenticated ? 'chat' : 'register')}
+          />
+        )}
+
         {activeView === 'login' && (
           <Login
             onNavigateToRegister={() => navigateTo('register')}

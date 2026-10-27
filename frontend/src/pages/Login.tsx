@@ -44,14 +44,14 @@ export const Login: React.FC<LoginProps> = ({
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-[calc(100vh-4.5rem)] items-center justify-center px-4 py-4 sm:py-6 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         {/* Card Header & Brand */}
-        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-sm transition-all">
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-800">
+        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#050914] p-6 sm:p-7 shadow-sm transition-all">
+          <div className="mb-4 text-center">
+            <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 shadow-sm shadow-emerald-500/20">
               <svg
-                className="h-6 w-6"
+                className="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.8}
@@ -64,10 +64,10 @@ export const Login: React.FC<LoginProps> = ({
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
               Sign in to Medora
             </h1>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
               Access your intelligent clinical triage assistant
             </p>
           </div>
@@ -76,7 +76,7 @@ export const Login: React.FC<LoginProps> = ({
           {errorMessage && (
             <div
               role="alert"
-              className="mb-5 flex items-start gap-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/90 dark:bg-rose-950/40 p-3.5 text-xs text-rose-800 dark:text-rose-200 animate-in fade-in"
+              className="mb-4 flex items-start gap-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/90 dark:bg-rose-950/40 p-3 text-xs text-rose-800 dark:text-rose-200 animate-in fade-in"
             >
               <svg
                 className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400 mt-0.5"
@@ -94,7 +94,7 @@ export const Login: React.FC<LoginProps> = ({
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
               <label
                 htmlFor="email"
@@ -102,7 +102,7 @@ export const Login: React.FC<LoginProps> = ({
               >
                 Email address
               </label>
-              <div className="relative mt-1.5">
+              <div className="relative mt-1">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
                   <svg
                     className="h-4 w-4"
@@ -128,7 +128,7 @@ export const Login: React.FC<LoginProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="john.doe@example.com"
-                  className="block w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/70 py-2.5 pl-10 pr-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+                  className="block w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/80 py-2 pl-9.5 pr-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
                 />
               </div>
             </div>
@@ -142,7 +142,7 @@ export const Login: React.FC<LoginProps> = ({
                   Password
                 </label>
               </div>
-              <div className="relative mt-1.5">
+              <div className="relative mt-1">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
                   <svg
                     className="h-4 w-4"
@@ -168,7 +168,7 @@ export const Login: React.FC<LoginProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/70 py-2.5 pl-10 pr-10 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+                  className="block w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/80 py-2 pl-9.5 pr-10 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
                 />
                 <button
                   type="button"
@@ -194,7 +194,7 @@ export const Login: React.FC<LoginProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center rounded-xl bg-teal-600 py-2.5 px-4 text-xs font-semibold text-white shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-70 transition-all cursor-pointer"
+              className="w-full flex items-center justify-center rounded-xl bg-emerald-600 py-2.5 px-4 text-xs font-semibold text-white shadow-sm hover:bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-70 transition-all cursor-pointer mt-1"
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
@@ -227,13 +227,13 @@ export const Login: React.FC<LoginProps> = ({
           </form>
 
           {/* Switch to Register */}
-          <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-5 text-center">
+          <div className="mt-4 border-t border-slate-100 dark:border-slate-800/80 pt-3.5 text-center">
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Don't have an account yet?{' '}
               <button
                 type="button"
                 onClick={onNavigateToRegister}
-                className="font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:underline cursor-pointer"
+                className="font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 hover:underline cursor-pointer"
               >
                 Create one now
               </button>
