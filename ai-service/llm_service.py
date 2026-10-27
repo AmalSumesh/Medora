@@ -52,11 +52,18 @@ CORE TRIAGE BEHAVIOR:
 - Do not combine multiple questions into one question.
 - Prefer questions whose answers could meaningfully change the urgency
   or next triage decision.
-- Avoid low-value questions that are unlikely to affect the decision.
+- FLEXIBLE QUESTION LIMIT (3 to 7 QUESTIONS):
+  * A symptom triage intake should take between 3 and 7 questions depending on clinical complexity.
+  * You may conclude triage anytime starting from 3 questions as soon as you have sufficient clinical information.
+  * If the case is complex or requires differentiating between conditions, you may ask up to 7 questions.
+  * NEVER exceed 7 questions total.
+- RED FLAG STOPPING: If an emergency or severe warning sign is reported (e.g. severe chest pain radiating to arm/jaw, sudden thunderclap headache, difficulty breathing at rest, fever >= 104°F with rash), complete triage promptly without unnecessary questioning.
+- CLINICAL TONE AND RESPECT:
+  * Always speak with an empathetic, compassionate, and professional clinical bedside manner.
+  * NEVER interrogate, challenge, contradict, or doubt the patient's answers.
+  * NEVER say skeptical or unprofessional phrases like "are you sure about that?", "are you sure?", or "is that true?". Accept all stated symptoms and durations respectfully.
 - Do not continue questioning once enough information is available
   for a reasonable triage recommendation.
-- If an emergency warning sign is already established, prioritize
-  appropriate urgent guidance rather than unnecessary questioning.
 
 QUESTION SELECTION:
 
@@ -220,21 +227,41 @@ Do not return explanations outside the JSON object.
 
         context_text = medical_context or "No medical context."
 
-        user_prompt = f"""
-USER MESSAGE:
-{current_message}
+        question_count = len(triage_state.get("asked_questions", []))
+        is_completed = triage_state.get("is_completed", False)
 
-TRIAGE STATE:
+        if not is_completed and question_count >= 7:
+            triage_guidance = "2. CRITICAL: 7 questions have already been asked (maximum limit). You MUST conclude the triage assessment now (status: 'triage_complete'). Do NOT ask another question. Synthesize the final risk level, recommendation, and clinical rationale."
+        elif not is_completed and question_count >= 3:
+            triage_guidance = "2. If MEDICAL and triage is in progress: You have asked 3 or more questions. If you have enough clinical information to assess urgency and provide advice, complete triage now (status: 'triage_complete'). If critical clarifying details are still needed to differentiate conditions, you may ask ONE focused question (status: 'needs_more_information', maximum 7 questions total)."
+        else:
+            triage_guidance = "2. If MEDICAL and triage is in progress: ask ONE focused question (status: 'needs_more_information') to assess urgency. If severe red flags are reported, complete triage immediately (status: 'triage_complete')."
+
+        history_lines = []
+        for msg in triage_state.get("conversation_history", []):
+            role_label = "User" if msg.get("role") == "user" else "Medora AI"
+            history_lines.append(f"{role_label}: {msg.get('content')}")
+        formatted_history = "\n".join(history_lines) if history_lines else "No previous dialogue."
+
+        user_prompt = f"""
+CONVERSATION DIALOGUE SO FAR:
+{formatted_history}
+
+TRIAGE STATE & FACTS:
 {state_text}
 
 MEDICAL CONTEXT:
 {context_text}
 
+USER'S LATEST MESSAGE:
+{current_message}
+
 Instructions:
-1. DOMAIN CHECK: Is the user's message non-medical (e.g. sports like cricket/Kohli, programming/coding like Python, math, trivia, general non-health chat)?
+1. CONTEXT AWARENESS: Read the CONVERSATION DIALOGUE SO FAR carefully. Understand which question the user's latest message answers. Never ask about something that was already asked or answered in the dialogue.
+2. DOMAIN CHECK: Is the user's message non-medical (e.g. sports like cricket/Kohli, programming/coding like Python, math, trivia, general non-health chat)?
    - If NON-MEDICAL post-triage: return status: "follow_up", decline the off-topic request politely, remind them you are Medora AI (a medical symptom triage assistant), and redirect them back to their medical care/symptoms in "recommendation". Set possible_conditions: [].
    - If NON-MEDICAL at initial intake: return status: "needs_more_information", question_type: "symptom", and ask them to describe their medical symptoms in "next_question".
-2. If MEDICAL and triage is in progress: ask ONE focused question if missing information could materially change urgency (status: needs_more_information). Otherwise complete the initial triage (status: triage_complete).
+{triage_guidance}
 3. If MEDICAL and triage was ALREADY completed: return status: "follow_up". Directly and conversationally answer their health-related question in the "recommendation" field. Do NOT repeat the previous recommendation verbatim. Set possible_conditions: [].
 4. If new severe symptoms or emergency red flags are mentioned, escalate the risk level.
 

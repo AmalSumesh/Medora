@@ -82,15 +82,15 @@ class TriageFacade:
                     "sources": []
                 }
 
-            # Store the valid answer
+            # Store the valid answer with question context so details are not lost
             normalized_answer = validation.get(
                 "normalized_answer",
                 user_message
             )
-
+            info_key = f"{current_question['type']}: {current_question['question']}"
             self.conversation_service.add_answered_information(
                 session_id,
-                current_question["type"],
+                info_key,
                 normalized_answer
             )
 
@@ -133,12 +133,18 @@ class TriageFacade:
             )
         )
 
+        messages_history = self.conversation_service.get_messages(session_id)
+
         is_completed = self.conversation_service.is_completed(session_id)
         last_recommendation = self.conversation_service.get_last_recommendation(session_id)
 
-        # Build compact triage state
+        # Build compact triage state with full conversation history
         triage_state = {
             "initial_symptom": initial_symptom,
+            "conversation_history": [
+                {"role": m["role"], "content": m["content"]}
+                for m in messages_history[-10:]
+            ],
             "answered_information": answered_information,
             "asked_questions": [
                 {
@@ -202,6 +208,18 @@ class TriageFacade:
         if is_completed:
             result["status"] = "follow_up"
             result["possible_conditions"] = []
+
+        # Enforce question cap: if 7 questions were already asked, force triage completion
+        if not is_completed and len(asked_questions) >= 7 and result.get("status") == "needs_more_information":
+            result["status"] = "triage_complete"
+            result["question_type"] = None
+            result["next_question"] = None
+            if not result.get("recommendation"):
+                result["recommendation"] = f"Based on your symptoms and clinical history, please consult a healthcare professional for an in-person medical evaluation."
+            if not result.get("reason"):
+                result["reason"] = "Triage assessment completed based on reported symptoms, duration, and clinical screening."
+            if result.get("risk_level") in ("unknown", None):
+                result["risk_level"] = "moderate"
 
         # Handle follow-up question
         if result["status"] == "needs_more_information":
