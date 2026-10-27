@@ -19,8 +19,13 @@ class LLMService:
             raise ValueError("GROQ_API_KEY is missing from .env")
 
         self.client = Groq(api_key=api_key)
-        self.model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
-        self.fallback_model = "openai/gpt-oss-20b"
+        self.model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
+        self.fallback_models = [
+            "qwen/qwen3.8-27b",
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b"
+        ]
+        self._model_cooldowns = {}
 
     def generate_triage_response(
         self,
@@ -294,7 +299,14 @@ Return exactly ONE valid JSON object matching the required schema.
         user_prompt
     ):
 
-        models_to_try = [self.model, self.fallback_model] if self.model != self.fallback_model else [self.model]
+        now = time.time()
+        # Build prioritized list of models
+        candidates = [self.model] + [m for m in self.fallback_models if m != self.model]
+        # Filter out models currently in cooldown
+        models_to_try = [m for m in candidates if now >= self._model_cooldowns.get(m, 0)]
+        if not models_to_try:
+            # If all are cooling down, try candidates in order anyway
+            models_to_try = candidates
 
         for current_model in models_to_try:
 
@@ -425,10 +437,10 @@ Return exactly ONE valid JSON object matching the required schema.
 
                 except RateLimitError:
 
-                    if current_model == self.fallback_model or attempt == 1:
-                        break
-
-                    time.sleep(0.5)
+                    # Mark this model as rate-limited for 5 minutes
+                    self._model_cooldowns[current_model] = time.time() + 300
+                    # Immediately move to next candidate model without sleeping
+                    break
 
                 except BadRequestError as error:
 
@@ -440,7 +452,7 @@ Return exactly ONE valid JSON object matching the required schema.
                     if attempt == 1:
                         break
 
-                    time.sleep(0.5)
+                    time.sleep(0.2)
 
         raise RuntimeError(
             "Groq request failed on all available models."

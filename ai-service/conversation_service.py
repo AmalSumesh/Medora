@@ -109,6 +109,14 @@ class ConversationService:
         self._check_session(session_id)
         return self.sessions[session_id].get("last_recommendation")
 
+    def get_cached_context(self, session_id):
+        self._check_session(session_id)
+        return self.sessions[session_id].get("cached_medical_context")
+
+    def set_cached_context(self, session_id, context):
+        self._check_session(session_id)
+        self.sessions[session_id]["cached_medical_context"] = context
+
     def clear_session(self, session_id):
         if session_id in self.sessions:
             del self.sessions[session_id]
@@ -122,5 +130,6 @@ class ConversationService:
                 "answered_information": {},
                 "initial_symptom": None,
                 "is_completed": False,
-                "last_recommendation": None
+                "last_recommendation": None,
+                "cached_medical_context": None
             }

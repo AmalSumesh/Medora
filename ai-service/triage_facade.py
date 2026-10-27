@@ -158,26 +158,39 @@ class TriageFacade:
             "previous_recommendation": last_recommendation
         }
 
-        # Build a focused RAG query
-        rag_query_parts = [
-            f"Primary symptom: {initial_symptom}"
-        ]
-
-        for question_type, answer in answered_information.items():
-            rag_query_parts.append(
-                f"{question_type}: {answer}"
-            )
-
-        if is_completed:
-            rag_query_parts.append(f"Follow-up inquiry: {user_message}")
-
-        rag_query = " | ".join(rag_query_parts)
-
-        # Retrieve relevant medical context
-        medical_context = self.rag_service.retrieve_context(
-            rag_query,
-            limit=4
+        # Smart RAG Retrieval: Reuse cached context on intermediate demographic/intake turns
+        cached_context = self.conversation_service.get_cached_context(session_id)
+        should_refresh_rag = (
+            cached_context is None
+            or is_completed
+            or len(asked_questions) >= 3
         )
+
+        if should_refresh_rag or not cached_context:
+            rag_query_parts = [
+                f"Primary symptom: {initial_symptom}"
+            ]
+
+            for question_type, answer in answered_information.items():
+                rag_query_parts.append(
+                    f"{question_type}: {answer}"
+                )
+
+            if is_completed:
+                rag_query_parts.append(f"Follow-up inquiry: {user_message}")
+
+            rag_query = " | ".join(rag_query_parts)
+
+            medical_context = self.rag_service.retrieve_context(
+                rag_query,
+                limit=4
+            )
+            self.conversation_service.set_cached_context(
+                session_id,
+                medical_context
+            )
+        else:
+            medical_context = cached_context
 
         # Generate the next triage action
         result = self.llm_service.generate_triage_response(
