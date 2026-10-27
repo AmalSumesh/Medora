@@ -16,6 +16,11 @@ const messageSchema = new mongoose.Schema({
     content : {
         type : String,
         required : [true, "Please add a content"]
+    },
+
+    triage : {
+        type : mongoose.Schema.Types.Mixed,
+        default : null
     }
 },{timestamps : true});
 

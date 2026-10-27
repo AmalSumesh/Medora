@@ -133,6 +133,9 @@ class TriageFacade:
             )
         )
 
+        is_completed = self.conversation_service.is_completed(session_id)
+        last_recommendation = self.conversation_service.get_last_recommendation(session_id)
+
         # Build compact triage state
         triage_state = {
             "initial_symptom": initial_symptom,
@@ -144,7 +147,9 @@ class TriageFacade:
                 }
                 for item in asked_questions
             ],
-            "current_question": None
+            "current_question": None,
+            "is_completed": is_completed,
+            "previous_recommendation": last_recommendation
         }
 
         # Build a focused RAG query
@@ -156,6 +161,9 @@ class TriageFacade:
             rag_query_parts.append(
                 f"{question_type}: {answer}"
             )
+
+        if is_completed:
+            rag_query_parts.append(f"Follow-up inquiry: {user_message}")
 
         rag_query = " | ".join(rag_query_parts)
 
@@ -190,11 +198,20 @@ class TriageFacade:
 
         result["sources"] = unique_sources
 
+        # If triage was already completed, strictly ensure status is follow_up
+        if is_completed:
+            result["status"] = "follow_up"
+            result["possible_conditions"] = []
+
         # Handle follow-up question
         if result["status"] == "needs_more_information":
 
             question_type = result.get("question_type")
             next_question = result.get("next_question")
+
+            # If initial input was non-medical and asking for symptoms, reset initial symptom
+            if question_type == "symptom":
+                self.conversation_service.set_initial_symptom(session_id, None)
 
             if question_type and next_question:
 
@@ -224,6 +241,12 @@ class TriageFacade:
         )
 
         recommendation = result.get("recommendation")
+
+        # Mark session as completed and save recommendation
+        self.conversation_service.set_completed(
+            session_id,
+            recommendation=recommendation
+        )
 
         if recommendation:
             self.conversation_service.add_message(

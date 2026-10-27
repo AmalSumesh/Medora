@@ -14,7 +14,9 @@ class ConversationService:
             "asked_questions": [],
             "current_question": None,
             "answered_information": {},
-            "initial_symptom": None
+            "initial_symptom": None,
+            "is_completed": False,
+            "last_recommendation": None
         }
 
         return session_id
@@ -93,10 +95,32 @@ class ConversationService:
 
         return self.sessions[session_id]["answered_information"]
 
+    def set_completed(self, session_id, recommendation=None):
+        self._check_session(session_id)
+        self.sessions[session_id]["is_completed"] = True
+        if recommendation:
+            self.sessions[session_id]["last_recommendation"] = recommendation
+
+    def is_completed(self, session_id):
+        self._check_session(session_id)
+        return self.sessions[session_id].get("is_completed", False)
+
+    def get_last_recommendation(self, session_id):
+        self._check_session(session_id)
+        return self.sessions[session_id].get("last_recommendation")
+
     def clear_session(self, session_id):
         if session_id in self.sessions:
             del self.sessions[session_id]
 
     def _check_session(self, session_id):
         if session_id not in self.sessions:
-            raise ValueError("Session does not exist.")
+            self.sessions[session_id] = {
+                "messages": [],
+                "asked_questions": [],
+                "current_question": None,
+                "answered_information": {},
+                "initial_symptom": None,
+                "is_completed": False,
+                "last_recommendation": None
+            }

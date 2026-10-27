@@ -26,7 +26,7 @@ export interface TriageSource {
 }
 
 export interface TriageData {
-  status: 'needs_more_information' | 'triage_complete' | string;
+  status: 'needs_more_information' | 'triage_complete' | 'follow_up' | string;
   risk_level?: 'unknown' | 'low' | 'moderate' | 'urgent' | 'emergency' | string;
   question_type?: string | null;
   next_question?: string | null;

@@ -71,20 +71,22 @@ export function useChat() {
         setCurrentConversation(details.conversation);
         const msgs = details.messages || [];
 
-        // Check if there is stored triage details for this conversation
-        try {
-          const cachedTriage = localStorage.getItem(`medora_triage_${selectedConversationId}`);
-          if (cachedTriage && msgs.length > 0) {
-            const parsedTriage = JSON.parse(cachedTriage);
-            for (let i = msgs.length - 1; i >= 0; i--) {
-              if (msgs[i].role === 'assistant') {
-                msgs[i].triage = parsedTriage;
-                break;
+        // Legacy fallback: check localStorage only if no message has persisted triage
+        const hasTriage = msgs.some((m) => m.triage?.status === 'triage_complete');
+        if (!hasTriage && msgs.length > 0) {
+          try {
+            const cachedTriage = localStorage.getItem(`medora_triage_${selectedConversationId}`);
+            if (cachedTriage) {
+              const parsedTriage = JSON.parse(cachedTriage);
+              // Attach legacy cached triage to the first assistant message that completed triage
+              const target = msgs.find((m) => m.role === 'assistant');
+              if (target) {
+                target.triage = parsedTriage;
               }
             }
+          } catch {
+            // Ignore cache errors
           }
-        } catch {
-          // Ignore cache errors
         }
 
         setMessages(msgs);

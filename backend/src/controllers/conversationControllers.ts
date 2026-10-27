@@ -188,7 +188,8 @@ export const sendMessage = async (req: Request, res: Response) => {
         const response = await Message.create({
             conversationId: conversation._id,
             role: "assistant",
-            content: assistantResponse
+            content: assistantResponse,
+            triage: pythonData
         });
 
         res.status(201).json({
