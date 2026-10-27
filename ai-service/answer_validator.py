@@ -19,7 +19,7 @@ class AnswerValidator:
             raise ValueError("GROQ_API_KEY is missing from .env")
 
         self.client = Groq(api_key=api_key)
-        self.model = "openai/gpt-oss-120b"
+        self.model = "openai/gpt-oss-20b"
 
     def validate(
         self,

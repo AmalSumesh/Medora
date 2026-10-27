@@ -178,12 +178,17 @@ export const sendMessage = async (req: Request, res: Response) => {
         );
 
         if (!pythonResponse.ok) {
-            throw new Error("FAILED TO SEND MESSAGE");
+            const errorText = await pythonResponse.text().catch(() => "");
+            console.error("AI SERVICE ERROR:", pythonResponse.status, errorText);
+            throw new Error(`AI service responded with status ${pythonResponse.status}`);
         }
 
         const pythonData = await pythonResponse.json();
 
-        const assistantResponse = pythonData.next_question ?? pythonData.recommendation;
+        const assistantResponse =
+            pythonData.next_question ??
+            pythonData.recommendation ??
+            "I have noted your message. If you are experiencing serious or worsening symptoms, please seek prompt medical care.";
 
         const response = await Message.create({
             conversationId: conversation._id,
