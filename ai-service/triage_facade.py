@@ -38,6 +38,7 @@ class TriageFacade:
         )
 
         if current_question:
+            attempts = current_question.get("attempts", 0)
 
             validation = self.answer_validator.validate(
                 question_type=current_question["type"],
@@ -45,48 +46,70 @@ class TriageFacade:
                 user_answer=user_message
             )
 
-            # Handle invalid answers
-            if not validation["valid"]:
+            # Handle invalid answers with loop prevention
+            if not validation.get("valid", True):
 
-                self.conversation_service.add_message(
-                    session_id,
-                    "user",
-                    user_message
-                )
-
-                clarification = validation.get("clarification")
-
-                if not clarification:
-                    clarification = (
-                        f"Please answer this question directly: "
-                        f"{current_question['question']}"
+                # If user already answered once or was asked for clarification,
+                # do NOT trap them in a loop. Accept their answer and proceed!
+                if attempts >= 1:
+                    validation["valid"] = True
+                    validation["normalized_answer"] = user_message
+                else:
+                    self.conversation_service.add_message(
+                        session_id,
+                        "user",
+                        user_message
                     )
 
-                self.conversation_service.add_message(
-                    session_id,
-                    "assistant",
-                    clarification
-                )
+                    clarification = validation.get("clarification")
 
-                return {
-                    "status": "needs_more_information",
-                    "risk_level": "unknown",
-                    "question_type": current_question["type"],
-                    "next_question": clarification,
-                    "possible_conditions": [],
-                    "recommendation": None,
-                    "reason": (
-                        "The previous response did not clearly answer "
-                        "the current triage question."
-                    ),
-                    "sources": []
-                }
+                    if not clarification:
+                        clarification = (
+                            f"Please answer this question directly: "
+                            f"{current_question['question']}"
+                        )
 
-            # Store the valid answer with question context so details are not lost
-            normalized_answer = validation.get(
+                    # Update current_question to the clarification question
+                    self.conversation_service.set_current_question(
+                        session_id,
+                        current_question["type"],
+                        clarification
+                    )
+                    updated_q = self.conversation_service.get_current_question(session_id)
+                    if updated_q:
+                        updated_q["attempts"] = attempts + 1
+                        updated_q["partial_answer"] = user_message
+
+                    self.conversation_service.add_message(
+                        session_id,
+                        "assistant",
+                        clarification
+                    )
+
+                    return {
+                        "status": "needs_more_information",
+                        "risk_level": "unknown",
+                        "question_type": current_question["type"],
+                        "next_question": clarification,
+                        "possible_conditions": [],
+                        "recommendation": None,
+                        "reason": (
+                            "Clarifying the previous response."
+                        ),
+                        "sources": []
+                    }
+
+            # Store the valid answer with question context, merging any partial answer
+            partial = current_question.get("partial_answer")
+            user_ans = validation.get(
                 "normalized_answer",
                 user_message
             )
+            if partial and partial not in user_ans:
+                normalized_answer = f"{partial}, {user_ans}"
+            else:
+                normalized_answer = user_ans
+
             info_key = f"{current_question['type']}: {current_question['question']}"
             self.conversation_service.add_answered_information(
                 session_id,

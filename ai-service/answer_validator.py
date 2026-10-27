@@ -49,13 +49,14 @@ Rules:
 - Judge the answer using the question and question_type together.
 - Accept concise, natural, synonymous, and colloquial answers.
 - Accept short answers when they clearly provide the requested information.
-- Accept partial answers if they answer the requested information.
+- CRITICAL: If a question asked multiple things, and the user answers ANY of them, valid=true. NEVER reject an answer merely because it answered only one part of a multi-part question.
+- Accept partial answers if they answer any of the requested information.
 - Do not require the same wording as the question.
 - Do not infer facts that the user did not state.
 - Do not medically interpret the answer.
 - Do not reject an answer merely because it is brief.
 - If the answer provides the requested information, valid=true.
-- If it is unrelated or does not provide the requested information,
+- If it is completely unrelated or does not provide the requested information,
   valid=false.
 - normalized_answer must preserve the user's meaning and add no facts.
 - For a valid answer, clarification must be empty.
@@ -142,26 +143,50 @@ Return:
                 "clarification": ""
             }
 
-        # 2. Demographic / Age answers
+        # 2. Demographic / Age / Sex answers (handles "22M", "22 male", "22", "30f")
         if (
             q_type_lower == "demographic"
             or "how old" in q_lower
             or "age" in q_lower
+            or "sex" in q_lower
         ):
-            if re.match(r"^(\d{1,3})(\s*(years?(\s*old)?|yo|y/o))?$", cleaned):
+            # Matches 22m, 22f, 22 male, 22 female, 22 years old, 22
+            if re.match(r"^(\d{1,3})\s*(m|f|male|female|years?(\s*old)?|yo|y/o)?$", cleaned):
                 return {
                     "valid": True,
                     "normalized_answer": user_answer.strip(),
                     "clarification": ""
                 }
-            if cleaned in {"male", "female", "man", "woman", "boy", "girl"}:
+            if cleaned in {"male", "female", "man", "woman", "boy", "girl", "m", "f"}:
                 return {
                     "valid": True,
                     "normalized_answer": user_answer.strip(),
                     "clarification": ""
                 }
 
-        # 3. Duration answers
+        # 3. Pain Character or Description (e.g. constant pressure, throbbing, sharp, dull)
+        pain_types = {
+            "constant pressure", "throbbing", "pressure", "sharp", "dull",
+            "stabbing", "burning", "aching", "tight", "tightness", "sore",
+            "pounding", "splitting"
+        }
+        if any(pt in cleaned for pt in pain_types):
+            return {
+                "valid": True,
+                "normalized_answer": user_answer.strip(),
+                "clarification": ""
+            }
+
+        # 4. Severity scale (1 to 10 or 1-10 rating)
+        if "scale" in q_lower or "severe" in q_lower or "1 to 10" in q_lower or "1-10" in q_lower:
+            if re.match(r"^([0-9]|10)(\s*/\s*10)?$", cleaned):
+                return {
+                    "valid": True,
+                    "normalized_answer": user_answer.strip(),
+                    "clarification": ""
+                }
+
+        # 5. Duration answers
         if q_type_lower == "duration" or "how long" in q_lower:
             duration_indicators = [
                 "day", "days", "week", "weeks", "month", "months",
@@ -175,7 +200,7 @@ Return:
                     "clarification": ""
                 }
 
-        # 4. Temperature / Numeric measurements
+        # 6. Temperature / Numeric measurements
         if "temperature" in q_lower or "fever" in q_lower:
             if re.match(r"^(\d{2,3}(\.\d+)?)\s*(f|c|degrees|deg|°f|°c)?$", cleaned):
                 return {
