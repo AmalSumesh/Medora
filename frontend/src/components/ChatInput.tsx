@@ -29,7 +29,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="border-t border-slate-200/80 bg-white p-3 sm:p-4">
+    <div className="border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 sm:p-4 transition-colors">
       <div className="max-w-4xl mx-auto">
         <form onSubmit={handleSubmit} className="relative flex items-center">
           <input
@@ -40,7 +40,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             disabled={disabled || isSending}
             placeholder={placeholder}
             aria-label="Describe your health symptoms or questions"
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 py-3 pl-4 pr-24 text-sm sm:text-xs text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+            className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/80 py-3 pl-4 pr-24 text-sm sm:text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
           />
 
           <button
@@ -63,7 +63,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </button>
         </form>
 
-        <p className="mt-2 text-center text-[10px] sm:text-[11px] text-slate-400 select-none">
+        <p className="mt-2 text-center text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 select-none">
           Medora is an AI triage tool for clinical assistance and symptom evaluation. In life-threatening emergencies, call local emergency services immediately.
         </p>
       </div>

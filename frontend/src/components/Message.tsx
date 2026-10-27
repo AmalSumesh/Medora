@@ -43,26 +43,26 @@ export const Message: React.FC<MessageProps> = ({ message, user }) => {
           isUser
             ? 'rounded-tr-xs bg-teal-600 text-white shadow-teal-700/10'
             : isTriageComplete
-            ? 'rounded-tl-xs border border-teal-200/90 bg-white text-slate-800 shadow-sm'
-            : 'rounded-tl-xs border border-slate-200/90 bg-white text-slate-800'
+            ? 'rounded-tl-xs border border-teal-200/90 dark:border-teal-800/80 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-sm'
+            : 'rounded-tl-xs border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100'
         }`}
       >
         {!isUser && (
-          <div className="flex items-center justify-between gap-2 mb-1.5 border-b border-slate-100 pb-1.5">
+          <div className="flex items-center justify-between gap-2 mb-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-teal-900">Medora AI</span>
+              <span className="font-bold text-teal-900 dark:text-teal-300">Medora AI</span>
               <span
                 className={`rounded-full px-2 py-0.5 text-[9px] font-semibold border ${
                   isTriageComplete
-                    ? 'bg-teal-50 text-teal-800 border-teal-200'
-                    : 'bg-slate-50 text-slate-600 border-slate-200'
+                    ? 'bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800'
+                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                 }`}
               >
                 {isTriageComplete ? 'Triage Assessment Complete' : 'Clinical Triage'}
               </span>
             </div>
             {message.createdAt && (
-              <span className="text-[10px] text-slate-400">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">
                 {formatTime(message.createdAt)}
               </span>
             )}

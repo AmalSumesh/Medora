@@ -38,7 +38,7 @@ export const Chat: React.FC = () => {
   };
 
   return (
-    <div className="flex h-[calc(100dvh-4rem)] w-full overflow-hidden bg-slate-50">
+    <div className="flex h-[calc(100dvh-4rem)] w-full overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors">
       {/* Left Sidebar */}
       <Sidebar
         conversations={conversations}
@@ -56,9 +56,9 @@ export const Chat: React.FC = () => {
       />
 
       {/* Main Chat Area */}
-      <main className="flex flex-1 flex-col overflow-hidden bg-slate-50 min-w-0">
+      <main className="flex flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 min-w-0 transition-colors">
         {/* Chat Area Header */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200/80 bg-white px-4 sm:px-6">
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 sm:px-6 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             {/* Mobile sidebar toggle */}
             <button
@@ -66,7 +66,7 @@ export const Chat: React.FC = () => {
               onClick={() => setIsMobileSidebarOpen(true)}
               aria-label="Open triage consultations drawer"
               aria-expanded={isMobileSidebarOpen}
-              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+              className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -78,23 +78,23 @@ export const Chat: React.FC = () => {
               </svg>
             </button>
 
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 border border-teal-100">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-800">
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm1 14h-2v-3H8v-2h3V8h2v3h3v2h-3v3z" />
               </svg>
             </div>
             <div className="min-w-0">
-              <h2 className="text-xs font-semibold text-slate-900 truncate">
+              <h2 className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
                 {currentConversation?.title || 'Medora Clinical Assistant'}
               </h2>
-              <p className="text-[10px] text-emerald-600 flex items-center gap-1 font-medium truncate">
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium truncate">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></span>
                 AI Triage Active
               </p>
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-400 hidden sm:block shrink-0">
+          <div className="text-[11px] text-slate-400 dark:text-slate-500 hidden sm:block shrink-0">
             Evidence-based medical guidance
           </div>
         </div>
@@ -103,10 +103,10 @@ export const Chat: React.FC = () => {
         {error && (
           <div
             role="alert"
-            className="mx-4 mt-3 flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs text-rose-800 sm:mx-6 shrink-0 shadow-xs"
+            className="mx-4 mt-3 flex items-center justify-between rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-4 py-2.5 text-xs text-rose-800 dark:text-rose-200 sm:mx-6 shrink-0 shadow-xs"
           >
             <div className="flex items-center gap-2">
-              <svg className="h-4 w-4 shrink-0 text-rose-600" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -119,7 +119,7 @@ export const Chat: React.FC = () => {
               type="button"
               onClick={clearError}
               aria-label="Dismiss error"
-              className="text-xs font-semibold text-rose-700 hover:text-rose-900 cursor-pointer"
+              className="text-xs font-semibold text-rose-700 dark:text-rose-300 hover:text-rose-900 dark:hover:text-rose-100 cursor-pointer"
             >
               Dismiss
             </button>
@@ -129,7 +129,7 @@ export const Chat: React.FC = () => {
         {/* Message Container / Content Area */}
         {!selectedConversationId ? (
           <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 border border-teal-100 shadow-xs">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-800 shadow-xs">
               <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
@@ -139,8 +139,8 @@ export const Chat: React.FC = () => {
                 />
               </svg>
             </div>
-            <h3 className="text-base font-bold text-slate-800">No Consultation Selected</h3>
-            <p className="mt-1.5 max-w-sm text-xs text-slate-500">
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">No Consultation Selected</h3>
+            <p className="mt-1.5 max-w-sm text-xs text-slate-500 dark:text-slate-400">
               Select an ongoing triage session from the sidebar or start a new clinical consultation.
             </p>
             <button

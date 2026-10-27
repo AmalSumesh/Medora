@@ -64,9 +64,9 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         {/* Card Header & Brand */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm transition-all">
+        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-sm transition-all">
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 border border-teal-100">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-800">
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -81,10 +81,10 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
               Create your account
             </h1>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
               Join Medora for intelligent clinical triage assistance
             </p>
           </div>
@@ -93,10 +93,10 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
           {successMessage && (
             <div
               role="status"
-              className="mb-5 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-800 animate-in fade-in"
+              className="mb-5 flex items-start gap-3 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 p-3.5 text-xs text-emerald-800 dark:text-emerald-200 animate-in fade-in"
             >
               <svg
-                className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5"
+                className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -114,10 +114,10 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
           {errorMessage && (
             <div
               role="alert"
-              className="mb-5 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50/90 p-3.5 text-xs text-rose-800 animate-in fade-in"
+              className="mb-5 flex items-start gap-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/90 dark:bg-rose-950/40 p-3.5 text-xs text-rose-800 dark:text-rose-200 animate-in fade-in"
             >
               <svg
-                className="h-4 w-4 shrink-0 text-rose-600 mt-0.5"
+                className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400 mt-0.5"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -136,12 +136,12 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
             <div>
               <label
                 htmlFor="name"
-                className="block text-xs font-semibold text-slate-700"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Full Name
               </label>
               <div className="relative mt-1.5">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
                   <svg
                     className="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -166,7 +166,7 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
-                  className="block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+                  className="block w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/70 py-2.5 pl-10 pr-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
                 />
               </div>
             </div>
@@ -174,12 +174,12 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
             <div>
               <label
                 htmlFor="register-email"
-                className="block text-xs font-semibold text-slate-700"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Email address
               </label>
               <div className="relative mt-1.5">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
                   <svg
                     className="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -204,7 +204,7 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+                  className="block w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/70 py-2.5 pl-10 pr-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
                 />
               </div>
             </div>
@@ -212,12 +212,12 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
             <div>
               <label
                 htmlFor="register-password"
-                className="block text-xs font-semibold text-slate-700"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Password
               </label>
               <div className="relative mt-1.5">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
                   <svg
                     className="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -242,12 +242,12 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 6 characters"
-                  className="block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-10 text-xs text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+                  className="block w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/70 py-2.5 pl-10 pr-10 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
                   tabIndex={-1}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
@@ -268,12 +268,12 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
             <div>
               <label
                 htmlFor="confirm-password"
-                className="block text-xs font-semibold text-slate-700"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Confirm Password
               </label>
               <div className="relative mt-1.5">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
                   <svg
                     className="h-4 w-4"
                     viewBox="0 0 24 24"
@@ -298,7 +298,7 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repeat your password"
-                  className="block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
+                  className="block w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/70 py-2.5 pl-10 pr-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
                 />
               </div>
             </div>
@@ -339,13 +339,13 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
           </form>
 
           {/* Switch to Login */}
-          <div className="mt-6 border-t border-slate-100 pt-5 text-center">
-            <p className="text-xs text-slate-500">
+          <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-5 text-center">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Already have an account?{' '}
               <button
                 type="button"
                 onClick={() => onNavigateToLogin()}
-                className="font-semibold text-teal-600 hover:text-teal-700 hover:underline cursor-pointer"
+                className="font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:underline cursor-pointer"
               >
                 Sign in here
               </button>
@@ -354,7 +354,7 @@ export const Register: React.FC<RegisterProps> = ({ onNavigateToLogin }) => {
         </div>
 
         {/* Medical privacy notice */}
-        <p className="mt-4 text-center text-[11px] text-slate-400">
+        <p className="mt-4 text-center text-[11px] text-slate-400 dark:text-slate-500">
           By registering, your triage sessions will be securely organized in compliance with patient data privacy standards.
         </p>
       </div>

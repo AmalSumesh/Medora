@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { useAuth } from './hooks/useAuth';
 import { Navbar } from './components/Navbar';
 import { Login } from './pages/Login';
@@ -51,7 +52,7 @@ function MainApp() {
       : requestedView;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-teal-100 selection:text-teal-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-teal-100 selection:text-teal-900 dark:selection:bg-teal-900/60 dark:selection:text-teal-200 transition-colors">
       {/* Navigation Header */}
       <Navbar
         currentView={activeView}
@@ -85,8 +86,10 @@ function MainApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

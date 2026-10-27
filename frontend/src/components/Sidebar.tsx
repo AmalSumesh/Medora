@@ -70,11 +70,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside
         role="navigation"
         aria-label="Triage consultations"
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200/90 bg-white shadow-xl md:shadow-none transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${isOpenMobile ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl md:shadow-none transition-all duration-200 ease-in-out md:static md:translate-x-0 ${isOpenMobile ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
           }`}
       >
         {/* Action: New Conversation Button & Mobile Close */}
-        <div className="p-3 border-b border-slate-100 flex items-center gap-2">
+        <div className="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
           <button
             type="button"
             onClick={handleCreate}
@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               type="button"
               onClick={onCloseMobile}
               aria-label="Close consultations list"
-              className="rounded-xl p-2.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 md:hidden cursor-pointer"
+              className="rounded-xl p-2.5 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 md:hidden cursor-pointer"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -116,22 +116,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Conversation List */}
         <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
-          <div className="flex items-center justify-between px-2.5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <div className="flex items-center justify-between px-2.5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
             <span>Consultations</span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-400">
               {conversations.length}
             </span>
           </div>
 
           {isLoading ? (
             <div className="space-y-2 px-1 py-1" aria-label="Loading consultations">
-              <div className="h-11 w-full rounded-xl bg-slate-100 animate-pulse" />
-              <div className="h-11 w-full rounded-xl bg-slate-100 animate-pulse" />
-              <div className="h-11 w-full rounded-xl bg-slate-100 animate-pulse" />
+              <div className="h-11 w-full rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+              <div className="h-11 w-full rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+              <div className="h-11 w-full rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
             </div>
           ) : conversations.length === 0 ? (
             <div className="px-3 py-10 text-center">
-              <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 border border-teal-100">
+              <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-800">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
@@ -141,8 +141,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   />
                 </svg>
               </div>
-              <p className="text-xs font-semibold text-slate-700">No consultations yet</p>
-              <p className="mt-1 text-[11px] text-slate-400">
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No consultations yet</p>
+              <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
                 Start your first triage session by clicking "New Conversation" above.
               </p>
             </div>
@@ -170,13 +170,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }}
                   aria-current={isSelected ? 'page' : undefined}
                   className={`group relative flex items-center justify-between rounded-xl px-3 py-2.5 text-xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 ${isSelected
-                      ? 'bg-teal-50 text-teal-950 font-medium border border-teal-200/80 shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-transparent'
+                      ? 'bg-teal-50 dark:bg-teal-950/60 text-teal-950 dark:text-teal-100 font-medium border border-teal-200/80 dark:border-teal-800 shadow-xs'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent'
                     }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-2">
                     <svg
-                      className={`h-4 w-4 shrink-0 transition-colors ${isSelected ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-600'
+                      className={`h-4 w-4 shrink-0 transition-colors ${isSelected ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
                         }`}
                       fill="none"
                       viewBox="0 0 24 24"
@@ -192,7 +192,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </svg>
                     <div className="truncate">
                       <p className="truncate font-medium">{conv.title || 'Triage Session'}</p>
-                      <span className="text-[10px] text-slate-400 font-normal">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
                         {formatDate(conv.updatedAt || conv.createdAt)}
                       </span>
                     </div>
@@ -203,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {isConfirming ? (
                       <div
                         onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-rose-200 shadow-xs"
+                        className="flex items-center gap-1 bg-white dark:bg-slate-800 p-0.5 rounded-lg border border-rose-200 dark:border-rose-900 shadow-xs"
                       >
                         <button
                           type="button"
@@ -223,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             e.stopPropagation();
                             setConfirmDeleteId(null);
                           }}
-                          className="rounded px-1 py-0.5 text-[10px] text-slate-500 hover:text-slate-700"
+                          className="rounded px-1 py-0.5 text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                           title="Cancel"
                         >
                           ✕
@@ -239,7 +239,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         }}
                         title="Delete consultation"
                         aria-label={`Delete consultation ${conv.title || ''}`}
-                        className={`rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer ${isSelected ? 'opacity-100' : 'opacity-80 md:opacity-0 group-hover:opacity-100'
+                        className={`rounded-lg p-1.5 text-slate-400 dark:text-slate-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer ${isSelected ? 'opacity-100' : 'opacity-80 md:opacity-0 group-hover:opacity-100'
                           }`}
                       >
                         {isDeleting ? (
@@ -267,7 +267,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* User Profile / Logout Area */}
-        <div className="border-t border-slate-200/80 p-3 bg-slate-50/60">
+        <div className="border-t border-slate-200/80 dark:border-slate-800 p-3 bg-slate-50/60 dark:bg-slate-900/60">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5 truncate">
               <div
@@ -277,10 +277,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {user?.name ? user.name.charAt(0) : 'U'}
               </div>
               <div className="truncate">
-                <p className="text-xs font-semibold text-slate-800 truncate">
+                <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                   {user?.name || 'Authorized User'}
                 </p>
-                <p className="text-[11px] text-slate-400 truncate">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">
                   {user?.email || 'Authenticated'}
                 </p>
               </div>
@@ -290,7 +290,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={onLogout}
               title="Sign out of Medora"
               aria-label="Sign out"
-              className="rounded-lg p-2 text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 transition-colors cursor-pointer"
+              className="rounded-lg p-2 text-slate-400 dark:text-slate-500 hover:bg-slate-200/60 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 transition-colors cursor-pointer"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
