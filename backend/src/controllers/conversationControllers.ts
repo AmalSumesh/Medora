@@ -6,7 +6,7 @@ import "dotenv/config";
 export const createConversation = async (req: Request, res: Response) => {
     try {
         const { title } = req.body;
-        const python_api_url = process.env.PYTHON_API_URL;
+        const python_api_url = process.env.PYTHON_API_URL?.replace(/\/+$/, "");
         if (!python_api_url) throw new Error("PYTHON_API_URL is not defined.");
 
         const pythonResponse = await fetch(`${python_api_url}/session`,
@@ -161,7 +161,7 @@ export const sendMessage = async (req: Request, res: Response) => {
             content
         });
 
-        const python_api_url = process.env.PYTHON_API_URL;
+        const python_api_url = process.env.PYTHON_API_URL?.replace(/\/+$/, "");
         if (!python_api_url) throw new Error("PYTHON_API_URL is not defined.");
 
         const pythonResponse = await fetch(`${python_api_url}/triage`,
