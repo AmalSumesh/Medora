@@ -5,11 +5,12 @@
 ### Evidence-Grounded Clinical Symptom Triage & Healthcare Intelligence
 
 <p>
-  <img src="https://img.shields.io/badge/LIVE_APP-VERCEL-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live App Vercel" />
-  <img src="https://img.shields.io/badge/API-RENDER-46E3B7?style=for-the-badge&logo=render&logoColor=white" alt="API Render" />
-  <img src="https://img.shields.io/badge/ML_ENGINE-AZURE_CONTAINER_APPS-0089D6?style=for-the-badge&logo=microsoftazure&logoColor=white" alt="ML Engine Azure" />
-  <img src="https://img.shields.io/badge/VECTOR_DB-QDRANT_CLOUD-DC2626?style=for-the-badge&logo=qdrant&logoColor=white" alt="Vector DB Qdrant" />
-  <img src="https://img.shields.io/badge/LLM_INFERENCE-GROQ-F55036?style=for-the-badge&logo=groq&logoColor=white" alt="LLM Inference Groq" />
+  <a href="https://medora-two-inky.vercel.app/" target="_blank"><img src="https://img.shields.io/badge/Live%20App-Vercel-black?style=for-the-badge&logo=vercel" alt="Live App Vercel" /></a>
+  <img src="https://img.shields.io/badge/API-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white" alt="API Render" />
+  <img src="https://img.shields.io/badge/ML%20Engine-Azure%20Container%20Apps-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white" alt="ML Engine Azure" />
+  <img src="https://img.shields.io/badge/Vector%20DB-Qdrant%20Cloud-DC2626?style=for-the-badge&logo=qdrant&logoColor=white" alt="Vector DB Qdrant" />
+  <img src="https://img.shields.io/badge/Model-MiniLM--L6--v2-blueviolet?style=for-the-badge&logo=huggingface" alt="Model HuggingFace" />
+  <img src="https://img.shields.io/badge/LLM-Groq%20LPU-F55036?style=for-the-badge&logo=groq&logoColor=white" alt="LLM Inference Groq" />
 </p>
 
 <p align="center">
@@ -119,7 +120,7 @@ flowchart TD
 
 | Tier | Technologies | Responsibility | Hosting Provider |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, Lucide Icons | Responsive patient UI, live dialogue streaming, dark/light theme | Vercel Edge Network |
+| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS v4, SVG Icons | Responsive patient UI, live dialogue streaming, dark/light theme | Vercel Edge Network |
 | **API Gateway** | Node.js, Express, TypeScript, Mongoose, JWT | Authentication, user profile, chat history storage, route orchestration | Render |
 | **Database** | MongoDB Atlas (M0 Shared Tier) | Persistent storage for users, conversations, and triage assessment payloads | MongoDB Cloud |
 | **AI Microservice** | Python 3.12, FastAPI, Uvicorn, Pydantic | Clinical triage orchestration, prompt engineering, answer validation | Azure Container Apps |
@@ -207,13 +208,13 @@ Processes a patient message, evaluates context, and returns the next clinical ac
 
 ### Frontend (`frontend/.env`)
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:5000
 ```
 
 ### Backend (`backend/.env`)
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/healthtriage?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/medora?retryWrites=true&w=majority
 JWT_SECRET=your_secure_jwt_secret_key
 PYTHON_API_URL=http://127.0.0.1:8000
 NODE_ENV=development
