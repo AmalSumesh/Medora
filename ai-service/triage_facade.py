@@ -15,7 +15,7 @@ class TriageFacade:
     def create_session(self):
         return self.conversation_service.create_session()
 
-    def chat(self, session_id, user_message):
+    def chat(self, session_id, user_message, history=None):
 
         # Validate empty input
         if not user_message or not user_message.strip():
@@ -31,6 +31,11 @@ class TriageFacade:
             }
 
         user_message = user_message.strip()
+
+        # If session is empty or out of date in memory, restore it instantly from database history (<0.1ms)
+        existing_msgs = self.conversation_service.get_messages(session_id)
+        if (not existing_msgs or len(existing_msgs) < len(history or [])) and history:
+            self.conversation_service.restore_from_history(session_id, history)
 
         # Check whether the user is answering a previous question
         current_question = (
@@ -181,32 +186,21 @@ class TriageFacade:
             "previous_recommendation": last_recommendation
         }
 
-        # Smart RAG Retrieval: Reuse cached context on intermediate demographic/intake turns
+        # Smart RAG Retrieval: Fetch once on initial presentation or on follow-up, reuse cache during intake
         cached_context = self.conversation_service.get_cached_context(session_id)
         should_refresh_rag = (
             cached_context is None
             or is_completed
-            or len(asked_questions) >= 3
         )
 
         if should_refresh_rag or not cached_context:
-            rag_query_parts = [
-                f"Primary symptom: {initial_symptom}"
-            ]
-
-            for question_type, answer in answered_information.items():
-                rag_query_parts.append(
-                    f"{question_type}: {answer}"
-                )
-
+            rag_query = f"Primary symptom: {initial_symptom}"
             if is_completed:
-                rag_query_parts.append(f"Follow-up inquiry: {user_message}")
-
-            rag_query = " | ".join(rag_query_parts)
+                rag_query += f" | Follow-up inquiry: {user_message}"
 
             medical_context = self.rag_service.retrieve_context(
                 rag_query,
-                limit=4
+                limit=3
             )
             self.conversation_service.set_cached_context(
                 session_id,
@@ -245,8 +239,8 @@ class TriageFacade:
             result["status"] = "follow_up"
             result["possible_conditions"] = []
 
-        # Enforce question cap: if 7 questions were already asked, force triage completion
-        if not is_completed and len(asked_questions) >= 7 and result.get("status") == "needs_more_information":
+        # Enforce question cap: strictly cap at 5 questions to prevent endless questioning
+        if not is_completed and len(asked_questions) >= 5 and result.get("status") == "needs_more_information":
             result["status"] = "triage_complete"
             result["question_type"] = None
             result["next_question"] = None

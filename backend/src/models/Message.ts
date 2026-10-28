@@ -4,7 +4,8 @@ const messageSchema = new mongoose.Schema({
     conversationId : {
         type : mongoose.Schema.Types.ObjectId,
         ref : "Conversation",
-        required : [true, "Please add a conversationId"]
+        required : [true, "Please add a conversationId"],
+        index : true
     },
 
     role : {

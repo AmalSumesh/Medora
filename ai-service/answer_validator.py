@@ -125,11 +125,13 @@ Return:
         q_lower = (question or "").lower()
         q_type_lower = (question_type or "").lower()
 
-        # 1. Direct Yes/No or presence/absence answers
+        # 1. Direct Yes/No or presence/absence answers (including qualifiers)
         yes_patterns = {
             "yes", "yeah", "yep", "i do", "yes i do", "yes slightly",
             "slightly", "a bit", "a little", "positive", "i have",
-            "yes severe", "severe", "moderate", "mild", "a lot"
+            "yes severe", "severe", "moderate", "mild", "a lot",
+            "sometimes", "occasionally", "rarely", "often", "always",
+            "intermittent", "constant", "daily", "at times", "yes sometimes"
         }
         no_patterns = {
             "no", "nope", "nah", "negative", "not really", "none",
@@ -143,14 +145,35 @@ Return:
                 "clarification": ""
             }
 
-        # 2. Demographic / Age / Sex answers (handles "22M", "22 male", "22", "30f")
+        # Any answer starting with 'yes' or 'no' or 'sometimes' for symptom screening questions
+        if (
+            cleaned.startswith("yes")
+            or cleaned.startswith("no")
+            or cleaned.startswith("sometimes")
+            or cleaned.startswith("only")
+            or "sometimes" in cleaned
+        ):
+            return {
+                "valid": True,
+                "normalized_answer": user_answer.strip(),
+                "clarification": ""
+            }
+
+        # 2. Weight loss or weight measurements (e.g. "from 66 kg to 60 kg", "lost 5 kg")
+        if "kg" in cleaned or "lbs" in cleaned or "pound" in cleaned or "weight" in cleaned:
+            return {
+                "valid": True,
+                "normalized_answer": user_answer.strip(),
+                "clarification": ""
+            }
+
+        # 3. Demographic / Age / Sex answers (handles "22M", "50M", "22 male", "22", "30f")
         if (
             q_type_lower == "demographic"
             or "how old" in q_lower
             or "age" in q_lower
             or "sex" in q_lower
         ):
-            # Matches 22m, 22f, 22 male, 22 female, 22 years old, 22
             if re.match(r"^(\d{1,3})\s*(m|f|male|female|years?(\s*old)?|yo|y/o)?$", cleaned):
                 return {
                     "valid": True,
@@ -164,11 +187,11 @@ Return:
                     "clarification": ""
                 }
 
-        # 3. Pain Character or Description (e.g. constant pressure, throbbing, sharp, dull)
+        # 4. Pain Character or Description (e.g. constant pressure, throbbing, sharp, dull)
         pain_types = {
             "constant pressure", "throbbing", "pressure", "sharp", "dull",
             "stabbing", "burning", "aching", "tight", "tightness", "sore",
-            "pounding", "splitting"
+            "pounding", "splitting", "bloating", "cramping"
         }
         if any(pt in cleaned for pt in pain_types):
             return {
@@ -177,7 +200,7 @@ Return:
                 "clarification": ""
             }
 
-        # 4. Severity scale (1 to 10 or 1-10 rating)
+        # 5. Severity scale (1 to 10 or 1-10 rating)
         if "scale" in q_lower or "severe" in q_lower or "1 to 10" in q_lower or "1-10" in q_lower:
             if re.match(r"^([0-9]|10)(\s*/\s*10)?$", cleaned):
                 return {
@@ -186,7 +209,7 @@ Return:
                     "clarification": ""
                 }
 
-        # 5. Duration answers
+        # 6. Duration answers
         if q_type_lower == "duration" or "how long" in q_lower:
             duration_indicators = [
                 "day", "days", "week", "weeks", "month", "months",
@@ -200,7 +223,7 @@ Return:
                     "clarification": ""
                 }
 
-        # 6. Temperature / Numeric measurements
+        # 7. Temperature / Numeric measurements
         if "temperature" in q_lower or "fever" in q_lower:
             if re.match(r"^(\d{2,3}(\.\d+)?)\s*(f|c|degrees|deg|°f|°c)?$", cleaned):
                 return {

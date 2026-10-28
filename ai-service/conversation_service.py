@@ -6,6 +6,64 @@ class ConversationService:
     def __init__(self):
         self.sessions = {}
 
+    def restore_from_history(self, session_id, history):
+        if not history:
+            return
+
+        self._check_session(session_id)
+        session = self.sessions[session_id]
+
+        initial_symptom = None
+        asked_questions = []
+        answered_information = {}
+        current_question = None
+        is_completed = False
+        last_recommendation = None
+        messages = []
+
+        for i, m in enumerate(history):
+            role = m.get("role")
+            content = m.get("content", "")
+            messages.append({"role": role, "content": content})
+
+            if role == "user" and initial_symptom is None:
+                initial_symptom = content
+
+            if role == "assistant":
+                triage_meta = m.get("triage") or {}
+                status = triage_meta.get("status")
+                q_type = triage_meta.get("question_type") or "symptom"
+                q_text = triage_meta.get("next_question")
+                if not q_text and content and "?" in content:
+                    q_text = content.strip()
+
+                if status == "triage_complete":
+                    is_completed = True
+                    last_recommendation = triage_meta.get("recommendation") or content
+
+                if q_text:
+                    already_asked = any(
+                        item["question"].strip().lower() == q_text.strip().lower()
+                        for item in asked_questions
+                    )
+                    if not already_asked:
+                        asked_questions.append({"type": q_type, "question": q_text})
+
+                    # If next message in history is the user's answer, pair them
+                    if i + 1 < len(history) and history[i + 1].get("role") == "user":
+                        ans = history[i + 1].get("content", "")
+                        answered_information[f"{q_type}: {q_text}"] = ans
+                    elif i == len(history) - 1 and not is_completed:
+                        current_question = {"type": q_type, "question": q_text, "attempts": 0}
+
+        session["messages"] = messages
+        session["initial_symptom"] = initial_symptom
+        session["asked_questions"] = asked_questions
+        session["answered_information"] = answered_information
+        session["current_question"] = current_question
+        session["is_completed"] = is_completed
+        session["last_recommendation"] = last_recommendation
+
     def create_session(self):
         session_id = str(uuid.uuid4())
 
@@ -65,11 +123,11 @@ class ConversationService:
     def add_asked_question(self, session_id, question_type, question):
         self._check_session(session_id)
 
-        if not question_type:
+        if not question:
             return
 
         already_asked = any(
-            item["type"] == question_type
+            item["question"].strip().lower() == question.strip().lower()
             for item in self.sessions[session_id]["asked_questions"]
         )
 

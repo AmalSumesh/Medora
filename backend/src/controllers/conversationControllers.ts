@@ -161,6 +161,19 @@ export const sendMessage = async (req: Request, res: Response) => {
             content
         });
 
+        // Retrieve prior messages in this conversation so AI service can seamlessly restore context
+        // even if the container scaled to 0 or restarted (indexed query, < 2ms).
+        const priorMessages = await Message.find({
+            conversationId: conversation._id,
+            _id: { $ne: message._id }
+        }).sort({ createdAt: 1 }).lean();
+
+        const history = priorMessages.map((m: any) => ({
+            role: m.role,
+            content: m.content,
+            triage: m.triage
+        }));
+
         const python_api_url = process.env.PYTHON_API_URL?.replace(/\/+$/, "");
         if (!python_api_url) throw new Error("PYTHON_API_URL is not defined.");
 
@@ -172,7 +185,8 @@ export const sendMessage = async (req: Request, res: Response) => {
                 },
                 body: JSON.stringify({
                     session_id: conversation.aiSessionId,
-                    message: content
+                    message: content,
+                    history
                 })
             }
         );

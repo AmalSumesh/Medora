@@ -13,12 +13,14 @@ class LLMService:
     def __init__(self):
         load_dotenv()
 
-        api_key = os.getenv("GROQ_API_KEY")
+        raw_keys = os.getenv("GROQ_API_KEY", "")
+        self.api_keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
 
-        if not api_key:
+        if not self.api_keys:
             raise ValueError("GROQ_API_KEY is missing from .env")
 
-        self.client = Groq(api_key=api_key)
+        self.clients = [Groq(api_key=k) for k in self.api_keys]
+        self.current_key_idx = 0
         self.model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
         self.fallback_models = [
             "qwen/qwen3.8-27b",
@@ -60,11 +62,10 @@ CORE TRIAGE BEHAVIOR:
   * Do not combine multiple questions using 'and', 'or', or commas.
 - Prefer questions whose answers could meaningfully change the urgency
   or next triage decision.
-- FLEXIBLE QUESTION LIMIT (3 to 7 QUESTIONS):
-  * A symptom triage intake should take between 3 and 7 questions depending on clinical complexity.
+- FLEXIBLE QUESTION LIMIT (3 to 5 QUESTIONS):
+  * A symptom triage intake should take between 3 and 5 questions depending on clinical complexity.
   * You may conclude triage anytime starting from 3 questions as soon as you have sufficient clinical information.
-  * If the case is complex or requires differentiating between conditions, you may ask up to 7 questions.
-  * NEVER exceed 7 questions total.
+  * NEVER exceed 5 questions total. Once 5 questions are reached, you MUST conclude triage (status: 'triage_complete').
 - RED FLAG STOPPING: If an emergency or severe warning sign is reported (e.g. severe chest pain radiating to arm/jaw, sudden thunderclap headache, difficulty breathing at rest, fever >= 104°F with rash), complete triage promptly without unnecessary questioning.
 - CLINICAL TONE AND RESPECT:
   * Always speak with an empathetic, compassionate, and professional clinical bedside manner.
@@ -227,20 +228,28 @@ Return exactly ONE valid JSON object matching the required schema.
 Do not return markdown.
 Do not return explanations outside the JSON object.
 """
+        question_count = len(triage_state.get("asked_questions", []))
+        is_completed = triage_state.get("is_completed", False)
+
+        clean_state = {
+            "initial_symptom": triage_state.get("initial_symptom"),
+            "answered_information": triage_state.get("answered_information", {}),
+            "questions_already_asked": [
+                q.get("question") for q in triage_state.get("asked_questions", [])
+            ],
+            "total_questions_asked": question_count
+        }
         state_text = json.dumps(
-            triage_state,
+            clean_state,
             ensure_ascii=False
         )
 
         context_text = medical_context or "No medical context."
 
-        question_count = len(triage_state.get("asked_questions", []))
-        is_completed = triage_state.get("is_completed", False)
-
-        if not is_completed and question_count >= 7:
-            triage_guidance = "2. CRITICAL: 7 questions have already been asked (maximum limit). You MUST conclude the triage assessment now (status: 'triage_complete'). Do NOT ask another question. Synthesize the final risk level, recommendation, and clinical rationale."
+        if not is_completed and question_count >= 5:
+            triage_guidance = "2. CRITICAL: 5 questions have already been asked (maximum limit reached). You MUST conclude the triage assessment now (status: 'triage_complete'). Do NOT ask another question. Synthesize the final risk level, recommendation, and clinical rationale."
         elif not is_completed and question_count >= 3:
-            triage_guidance = "2. If MEDICAL and triage is in progress: You have asked 3 or more questions. If you have enough clinical information to assess urgency and provide advice, complete triage now (status: 'triage_complete'). If critical clarifying details are still needed to differentiate conditions, you may ask ONE focused question (status: 'needs_more_information', maximum 7 questions total)."
+            triage_guidance = "2. If MEDICAL and triage is in progress: You have already asked 3 or more questions. If you have sufficient clinical facts, complete triage now (status: 'triage_complete'). If one final critical differentiator is still needed, you may ask ONE last focused question (maximum 5 questions total)."
         else:
             triage_guidance = "2. If MEDICAL and triage is in progress: ask ONE focused question (status: 'needs_more_information') to assess urgency. If severe red flags are reported, complete triage immediately (status: 'triage_complete')."
 
@@ -310,152 +319,159 @@ Return exactly ONE valid JSON object matching the required schema.
             # If all are cooling down, try candidates in order anyway
             models_to_try = candidates
 
-        for current_model in models_to_try:
+        num_keys = len(self.clients)
 
-            for attempt in range(2):
+        for key_offset in range(num_keys):
+            active_key_idx = (self.current_key_idx + key_offset) % num_keys
+            active_client = self.clients[active_key_idx]
 
-                try:
+            for current_model in models_to_try:
 
-                    return self.client.chat.completions.create(
-                        model=current_model,
-                        messages=[
-                            {
-                                "role": "system",
-                                "content": system_prompt
-                            },
-                            {
-                                "role": "user",
-                                "content": user_prompt
-                            }
-                        ],
-                        temperature=0,
-                        max_tokens=1200,
-                        response_format={
-                            "type": "json_schema",
-                            "json_schema": {
-                                "name": "triage_response",
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "enum": [
-                                                "needs_more_information",
-                                                "triage_complete",
-                                                "follow_up"
-                                            ]
-                                        },
-                                        "risk_level": {
-                                            "type": "string",
-                                            "enum": [
-                                                "unknown",
-                                                "low",
-                                                "moderate",
-                                                "urgent",
-                                                "emergency"
-                                            ]
-                                        },
-                                        "question_type": {
-                                            "type": [
-                                                "string",
-                                                "null"
-                                            ]
-                                        },
-                                        "next_question": {
-                                            "type": [
-                                                "string",
-                                                "null"
-                                            ]
-                                        },
-                                        "possible_conditions": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string"
-                                                    },
-                                                    "evidence_ids": {
-                                                        "type": "array",
-                                                        "items": {
+                for attempt in range(2):
+
+                    try:
+                        t_start = time.time()
+                        resp = active_client.chat.completions.create(
+                            model=current_model,
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": system_prompt
+                                },
+                                {
+                                    "role": "user",
+                                    "content": user_prompt
+                                }
+                            ],
+                            temperature=0,
+                            max_tokens=600,
+                            response_format={
+                                "type": "json_schema",
+                                "json_schema": {
+                                    "name": "triage_response",
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "needs_more_information",
+                                                    "triage_complete",
+                                                    "follow_up"
+                                                ]
+                                            },
+                                            "risk_level": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "unknown",
+                                                    "low",
+                                                    "moderate",
+                                                    "urgent",
+                                                    "emergency"
+                                                ]
+                                            },
+                                            "question_type": {
+                                                "type": [
+                                                    "string",
+                                                    "null"
+                                                ]
+                                            },
+                                            "next_question": {
+                                                "type": [
+                                                    "string",
+                                                    "null"
+                                                ]
+                                            },
+                                            "possible_conditions": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "name": {
                                                             "type": "string"
                                                         },
-                                                        "minItems": 1
-                                                    }
-                                                },
-                                                "required": [
-                                                    "name",
-                                                    "evidence_ids"
-                                                ],
-                                                "additionalProperties": False
-                                            },
-                                            "maxItems": 5
-                                        },
-                                        "recommendation": {
-                                            "type": [
-                                                "string",
-                                                "null"
-                                            ]
-                                        },
-                                        "reason": {
-                                            "type": "string"
-                                        },
-                                        "sources": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "title": {
-                                                        "type": "string"
+                                                        "evidence_ids": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            },
+                                                            "minItems": 1
+                                                        }
                                                     },
-                                                    "url": {
-                                                        "type": "string"
-                                                    }
+                                                    "required": [
+                                                        "name",
+                                                        "evidence_ids"
+                                                    ],
+                                                    "additionalProperties": False
                                                 },
-                                                "required": [
-                                                    "title",
-                                                    "url"
-                                                ],
-                                                "additionalProperties": False
+                                                "maxItems": 5
                                             },
-                                            "maxItems": 4
-                                        }
-                                    },
-                                    "required": [
-                                        "status",
-                                        "risk_level",
-                                        "question_type",
-                                        "next_question",
-                                        "possible_conditions",
-                                        "recommendation",
-                                        "reason",
-                                        "sources"
-                                    ],
-                                    "additionalProperties": False
+                                            "recommendation": {
+                                                "type": [
+                                                    "string",
+                                                    "null"
+                                                ]
+                                            },
+                                            "reason": {
+                                                "type": "string"
+                                            },
+                                            "sources": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "title": {
+                                                            "type": "string"
+                                                        },
+                                                        "url": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "title",
+                                                        "url"
+                                                    ],
+                                                    "additionalProperties": False
+                                                },
+                                                "maxItems": 4
+                                            }
+                                        },
+                                        "required": [
+                                            "status",
+                                            "risk_level",
+                                            "question_type",
+                                            "next_question",
+                                            "possible_conditions",
+                                            "recommendation",
+                                            "reason",
+                                            "sources"
+                                        ],
+                                        "additionalProperties": False
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
+                        # Remember the active working key
+                        self.current_key_idx = active_key_idx
+                        return resp
 
-                except RateLimitError:
-
-                    # Mark this model as rate-limited for 5 minutes
-                    self._model_cooldowns[current_model] = time.time() + 300
-                    # Immediately move to next candidate model without sleeping
-                    break
-
-                except BadRequestError as error:
-
-                    message = str(error)
-
-                    if "json_validate_failed" not in message:
-                        raise
-
-                    if attempt == 1:
+                    except RateLimitError as err:
+                        print(f"[Groq] Key #{active_key_idx + 1} {current_model} RateLimitError: {err}", flush=True)
+                        self._model_cooldowns[current_model] = time.time() + 300
                         break
 
-                    time.sleep(0.2)
+                    except BadRequestError as error:
+
+                        message = str(error)
+
+                        if "json_validate_failed" not in message:
+                            raise
+
+                        if attempt == 1:
+                            break
+
+                        time.sleep(0.2)
 
         raise RuntimeError(
-            "Groq request failed on all available models."
+            "Groq request failed on all available API keys and models."
         )

@@ -1,3 +1,4 @@
+from typing import Optional, List, Dict, Any
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -24,6 +25,7 @@ facade = TriageFacade()
 class TriageRequest(BaseModel):
     session_id: str
     message: str
+    history: Optional[List[Dict[str, Any]]] = None
 
 
 @app.get("/")
@@ -54,7 +56,8 @@ def triage(request: TriageRequest):
 
     result = facade.chat(
         session_id=request.session_id,
-        user_message=request.message
+        user_message=request.message,
+        history=request.history
     )
 
     return result
